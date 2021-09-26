@@ -1,3 +1,9 @@
+"""
+trouble shooting
+site라고 지으면 pycharm debugger가 socket closed 라고 하면서 실행 불가능 상태로 변경된다.
+https://superuser.com/questions/1385995/my-pycharm-run-is-working-but-debugging-is-failing
+
+"""
 import os
 import re
 import json
@@ -29,11 +35,13 @@ class Site:
                 raise
         return {"id": account_id, "pw": account_pw}
 
-    def init_chrome_driver(self, chrome_driver_path, chrome_options=None):
+    def init_chrome_driver(self, chrome_options=None):
         if chrome_options:
             chrome_options = webdriver.ChromeOptions()
             chrome_options.add_argument(chrome_options)
-        driver = webdriver.Chrome(chrome_driver_path, chrome_options=chrome_options)
+            driver = webdriver.Chrome(chromedriver_path, chrome_options=chrome_options)
+        else:
+            driver = webdriver.Chrome(chromedriver_path)
         return driver
 
     def run(self):
