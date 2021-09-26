@@ -103,6 +103,9 @@ except TimeoutException:
 # TODO: 테스트 구현 및 구조화 완료
 # TODO: 윈도우 환경에서 구동 확인
 # TODO: 모니터링 도구 및 백그라운드 실행 혹은 자동 실행 도구 필요
+# TODO: 로깅 모듈 추가
+# TODO: pylint 추가
+# TODO: issue 모두 정리
 
 driver.close()
 
