@@ -2,7 +2,7 @@ import time
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 from selenium import webdriver
 
@@ -59,8 +59,9 @@ class Ondisk(Site):
         browser.get("http://www.ondisk.co.kr/index.php")
 
         # 결제 이벤트 팝업 해당 팝업을 닫아야 버튼이 눌림(페이지 전체 영역에 팝업이 발생)
-        event_popup_close = browser.find_element_by_xpath(".//div[@id='js-charge-layer']/p[@class='btn_close']")
-        event_popup_close.click()
+        # TODO: 이벤트 팝업 존재 여부 확인
+        # event_popup_close = browser.find_element_by_xpath(".//div[@id='js-charge-layer']/p[@class='btn_close']")
+        # event_popup_close.click()
 
         time.sleep(1)
 
@@ -77,8 +78,9 @@ class Ondisk(Site):
         roulette_button = browser.find_element_by_xpath(".//div[@id='js-roulette']/p/button")
         roulette_button.click()
 
+        # TODO: 룰렛 작동시간 파악
         try:
-            WebDriverWait(browser, 5).until(EC.alert_is_present(),
+            WebDriverWait(browser, 8).until(EC.alert_is_present(),
                                                  'Timed out waiting for PA creation ' +
                                                  'confirmation popup to appear.')
 
