@@ -41,7 +41,7 @@ class Ondisk(Site):
         login_button.click()
 
         # 이벤트 기간중 alert 된 메시지가 발생했을 경우
-        self.wait_for_alert_present(time=2, error_message="이벤트 페이지 알림이 발생하지 않았습니다.")
+        self.wait_for_alert_present(time=2)
 
         self.browser.get(self.main_page)
 
@@ -67,15 +67,17 @@ class Ondisk(Site):
 
         # TODO: 룰렛 작동시간 파악
         try:
-            WebDriverWait(self.browser, 8).until(EC.alert_is_present(),
-                                                 'Timed out waiting for PA creation ' +
-                                                 'confirmation popup to appear.')
+            WebDriverWait(self.browser, 10).until(EC.alert_is_present())
 
             alert = self.browser.switch_to.alert
+            if "오늘 이미 출석하셨습니다" in alert.text:
+                print("오늘은 이미 출석한 상태")
+            else:
+                print(alert.text)
             alert.accept()
             # TODO: 이때 어떤 알림인지 알 수 있어야한다.
             # 정상적으로 출석이 되었는지 아니면 출석이 이미 되었는지 판단의 재료가 되기 대문
-            print("출석체크 시 알림 무시")
+
         except TimeoutException:
             print("no alert")
 
