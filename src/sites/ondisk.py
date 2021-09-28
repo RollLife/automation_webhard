@@ -46,11 +46,15 @@ class Ondisk(Site):
         self.browser.get(self.main_page)
 
         # 결제 이벤트 팝업 해당 팝업을 닫아야 버튼이 눌림(페이지 전체 영역에 팝업이 발생)
-        # TODO: 이벤트 팝업 존재 여부 확인
-        # event_popup_close = browser.find_element_by_xpath(".//div[@id='js-charge-layer']/p[@class='btn_close']")
-        # event_popup_close.click()
-
-        time.sleep(1)
+        try:
+            event_popup_close = WebDriverWait(self.browser, 3).until(
+                EC.presence_of_element_located((By.XPATH, ".//div[@id='js-charge-layer']/p[@class='btn_close']"))
+            )
+            event_popup_close.click()
+        except TimeoutException:
+            pass
+        except NoSuchElementException:
+            pass
 
         # 출석체크
         # check_button = browser.find_element_by_xpath(".//ul[@class='etc_button']/li[@class='check']")
