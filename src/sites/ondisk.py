@@ -20,44 +20,30 @@ from src.sites.sites import Site, IE_AGENT, chromedriver_path
 
 
 class Ondisk(Site):
-    def __init__(self, site_name='ondisk'):
-        super().__init__(site_name)
+    def __init__(self):
+        site_name = "ondisk"
+        option = f'--user-agent="{IE_AGENT}"'
+        self.main_page = "https://www.ondisk.co.kr/index.php"
+
+        super().__init__(site_name, option)
 
     def run(self):
-        option = f'--user-agent="Mozilla/5.0 (MSIE 10.0; Windows NT 6.1; Trident/5.0)"'
-
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument(option)
-        browser = webdriver.Chrome(chromedriver_path, chrome_options=chrome_options)
-
-        # TODO: selenium error로 인해 임시로 막아둠
-        # browser = self.init_chrome_driver(chrome_options=chrome_options)
-        browser.get("http://www.ondisk.co.kr/index.php")
+        self.browser.get(self.main_page)
 
         # TODO: 페이지 로딩을 위해 정해진 시간으로 기다리는 해당 방법은 수정해야만 한다.
-        time.sleep(1)
+        id_element = self.wait_for_xpath_element_located(".//div[@class='insert']/p[1]/input")
+        password_element = self.wait_for_xpath_element_located(".//div[@class='insert']/p[2]/input")
 
-        id_element = browser.find_element_by_xpath(".//div[@class='insert']/p[1]/input")
         id_element.send_keys(self.account['id'])
-        password_element = browser.find_element_by_xpath(".//div[@class='insert']/p[2]/input")
         password_element.send_keys(self.account['pw'])
 
-        login_button = browser.find_element_by_xpath(".//p[@class='btn-login']")
+        login_button = self.browser.find_element_by_xpath(".//p[@class='btn-login']")
         login_button.click()
 
         # 이벤트 기간중 alert 된 메시지가 발생했을 경우
-        try:
-            WebDriverWait(browser, 3).until(EC.alert_is_present(),
-                                                 'Timed out waiting for PA creation ' +
-                                                 'confirmation popup to appear.')
+        self.wait_for_alert_present(time=2, error_message="이벤트 페이지 알림이 발생하지 않았습니다.")
 
-            alert = browser.switch_to.alert
-            alert.accept()
-            print("로그인 시 알림 무시")
-        except TimeoutException:
-            print("no alert")
-
-        browser.get("http://www.ondisk.co.kr/index.php")
+        self.browser.get(self.main_page)
 
         # 결제 이벤트 팝업 해당 팝업을 닫아야 버튼이 눌림(페이지 전체 영역에 팝업이 발생)
         # TODO: 이벤트 팝업 존재 여부 확인
@@ -73,19 +59,19 @@ class Ondisk(Site):
         # time.sleep(1)
 
         # 출석체크 페이지를 클릭하여 이동이 되지 않아 강제 페이지 이동
-        browser.get(
+        self.browser.get(
             "https://ondisk.co.kr/event/20140409_attend/event.php?mode=eventMarge&sm=event&action=view&idx=746&event_page=1")
 
-        roulette_button = browser.find_element_by_xpath(".//div[@id='js-roulette']/p/button")
+        roulette_button = self.wait_for_xpath_element_located(".//div[@id='js-roulette']/p/button")
         roulette_button.click()
 
         # TODO: 룰렛 작동시간 파악
         try:
-            WebDriverWait(browser, 8).until(EC.alert_is_present(),
+            WebDriverWait(self.browser, 8).until(EC.alert_is_present(),
                                                  'Timed out waiting for PA creation ' +
                                                  'confirmation popup to appear.')
 
-            alert = browser.switch_to.alert
+            alert = self.browser.switch_to.alert
             alert.accept()
             # TODO: 이때 어떤 알림인지 알 수 있어야한다.
             # 정상적으로 출석이 되었는지 아니면 출석이 이미 되었는지 판단의 재료가 되기 대문
@@ -93,7 +79,7 @@ class Ondisk(Site):
         except TimeoutException:
             print("no alert")
 
-        browser.quit()
+        self.browser.quit()
 
 
 if __name__ == '__main__':
