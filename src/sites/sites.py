@@ -72,7 +72,7 @@ class Site:
             print(f"해당 element가 존재하지않습니다. xpath: {xpath}")
             raise
 
-    def wait_for_alert_present(self, time=3, error_message="해당 알림이 확인 되지 않았습니다."):
+    def wait_for_alert_present(self, time=3):
         """
         페이지 로딩이 끝난 후 해당 element가 존재 하는지 확인하는 기능
         :param error_message:
@@ -84,8 +84,7 @@ class Site:
             alert = self.browser.switch_to.alert
             alert.accept()
         except TimeoutException:
-            # TODO: 로깅 모듈을 추가하고 제대로된 문구를 추가할 수 있도록 한다.
-            print(error_message)
+            pass
 
     def run(self):
         pass
