@@ -1,6 +1,7 @@
 import time
 
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
@@ -92,7 +93,7 @@ class Ondisk(Site):
         except TimeoutException:
             print("no alert")
 
-        browser.close()
+        browser.quit()
 
 
 if __name__ == '__main__':
