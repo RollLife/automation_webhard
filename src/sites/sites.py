@@ -9,6 +9,11 @@ import re
 import json
 
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from utils.account import ACCOUNT_FILE_PATH, DEFAULT_ACCOUNT_VALUE
 
@@ -20,9 +25,10 @@ chromedriver_path = chromedriver_path + "chromedriver"
 
 
 class Site:
-    def __init__(self, site_name):
+    def __init__(self, site_name, options=None):
         self.site_name = site_name
         self.account = self.load_account_info()
+        self.browser = self.init_chrome_driver(options=options)
 
     def load_account_info(self):
         with open(ACCOUNT_FILE_PATH, "r") as f:
@@ -35,14 +41,36 @@ class Site:
                 raise
         return {"id": account_id, "pw": account_pw}
 
-    def init_chrome_driver(self, chrome_options=None):
-        if chrome_options:
+    def init_chrome_driver(self, options=None):
+        if options:
             chrome_options = webdriver.ChromeOptions()
-            chrome_options.add_argument(chrome_options)
+            chrome_options.add_argument(options)
             driver = webdriver.Chrome(chromedriver_path, chrome_options=chrome_options)
         else:
             driver = webdriver.Chrome(chromedriver_path)
         return driver
+
+    def wait_for_xpath_element_located(self, xpath, time=10):
+        """
+        페이지 로딩이 끝난 후 해당 element가 존재 하는지 확인하는 기능
+        :param xpath:
+        :param time:
+        :return:
+        """
+        try:
+            element = WebDriverWait(self.browser, time).until(
+                EC.presence_of_element_located((By.XPATH, xpath))
+            )
+            return element
+        except TimeoutException:
+
+            # TODO: 로깅 모듈을 추가하고 제대로된 문구를 추가할 수 있도록 한다.
+            print("time error")
+            raise
+        except NoSuchElementException:
+            # TODO: 로깅 모듈을 추가하고 제대로된 문구를 추가할 수 있도록 한다.
+            print("해당 element가 존재하지않습니다.")
+            raise
 
     def run(self):
         pass
