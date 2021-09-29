@@ -10,6 +10,7 @@ logger.setLevel(logging.INFO)
 formatter = logging.Formatter('[%(asctime)s][%(filename)s-%(funcName)s:%(lineno)d][%(levelname)s] - %(message)s')
 
 # log 출력
+stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 
