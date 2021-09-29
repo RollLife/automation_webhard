@@ -7,13 +7,13 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 from selenium import webdriver
 
+from logger import logger
 from src.sites.sites import Site, IE_AGENT, chromedriver_path
 
 
 # TODO: 테스트 구현 및 구조화 완료
 # TODO: 윈도우 환경에서 구동 확인
 # TODO: 모니터링 도구 및 백그라운드 실행 혹은 자동 실행 도구 필요
-# TODO: 로깅 모듈 추가
 # TODO: pylint 추가
 
 
@@ -28,7 +28,6 @@ class Ondisk(Site):
     def run(self):
         self.browser.get(self.main_page)
 
-        # TODO: 페이지 로딩을 위해 정해진 시간으로 기다리는 해당 방법은 수정해야만 한다.
         id_element = self.wait_for_xpath_element_located(".//div[@class='insert']/p[1]/input")
         password_element = self.wait_for_xpath_element_located(".//div[@class='insert']/p[2]/input")
 
@@ -51,19 +50,18 @@ class Ondisk(Site):
         roulette_button = self.wait_for_xpath_element_located(".//div[@id='js-roulette']/p/button")
         roulette_button.click()
 
-        # TODO: 룰렛 작동시간 파악
         try:
             WebDriverWait(self.browser, 10).until(EC.alert_is_present())
 
             alert = self.browser.switch_to.alert
             if "오늘 이미 출석하셨습니다" in alert.text:
-                print("오늘은 이미 출석한 상태")
+                logger.info("오늘은 이미 출석한 상태")
             else:
-                print(alert.text)
+                logger.info(alert.text)
             alert.accept()
 
         except TimeoutException:
-            print("no alert")
+            logger.info("룰렛 timeout")
 
         # 정상 작동 확인용
         self.browser.get(self.main_page)

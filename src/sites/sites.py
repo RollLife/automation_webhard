@@ -15,6 +15,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+from logger import logger
 from utils.account import ACCOUNT_FILE_PATH, DEFAULT_ACCOUNT_VALUE
 
 IE_AGENT = "Mozilla/5.0 (MSIE 10.0; Windows NT 6.1; Trident/5.0)"
@@ -37,7 +38,7 @@ class Site:
             account_pw = account_info[self.site_name]['pw']
 
             if account_id == DEFAULT_ACCOUNT_VALUE or account_pw == DEFAULT_ACCOUNT_VALUE:
-                # TODO: must need to change logging module
+                logger.error(f"{self.site_name}의 ID 혹은 PW의 갱신이 필요합니다.")
                 raise
         return {"id": account_id, "pw": account_pw}
 
@@ -64,12 +65,10 @@ class Site:
             return element
         except TimeoutException:
 
-            # TODO: 로깅 모듈을 추가하고 제대로된 문구를 추가할 수 있도록 한다.
-            print(f"페이지 로딩을 실패했습니다. xpath: {xpath}")
+            logger.error(f"페이지 로딩을 실패했습니다. xpath: {xpath}")
             raise
         except NoSuchElementException:
-            # TODO: 로깅 모듈을 추가하고 제대로된 문구를 추가할 수 있도록 한다.
-            print(f"해당 element가 존재하지않습니다. xpath: {xpath}")
+            logger.error(f"해당 element가 존재하지않습니다. xpath: {xpath}")
             raise
 
     def wait_for_alert_present(self, time=3):
