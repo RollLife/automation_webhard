@@ -47,3 +47,20 @@ for site_name in ALLOW_SITE_NAME_LIST:
 if current_account_data != result_account_data:
     with open(ACCOUNT_FILE_PATH, "w") as f:
         json.dump(result_account_data, f)
+
+
+def update_account_info(site, account_id, password):
+    result = dict()
+    with open(ACCOUNT_FILE_PATH, "r") as a_f:
+        account_data = json.load(a_f)
+
+    # 기존 값 그대로 반영
+    for site_name, account_info in account_data.items():
+        result[site_name] = account_info
+
+    # 입력받은 값으로 계정 파일에 저장
+    result[site] = {"id": account_id, "pw": password}
+
+    if account_data != result:
+        with open(ACCOUNT_FILE_PATH, "w") as n_ac:
+            json.dump(result, n_ac)
