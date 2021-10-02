@@ -8,7 +8,7 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium import webdriver
 
 from logger import logger
-from src.sites.sites import Site, IE_AGENT, chromedriver_path
+from src.sites.sites import Site, IE_AGENT, init_chrome_driver
 
 
 # TODO: 테스트 구현 및 구조화 완료
@@ -26,6 +26,7 @@ class Ondisk(Site):
         super().__init__(site_name, option)
 
     def run(self):
+        self.browser = init_chrome_driver(options=self.options)
         self.browser.get(self.main_page)
 
         id_element = self.wait_for_xpath_element_located(".//div[@class='insert']/p[1]/input")

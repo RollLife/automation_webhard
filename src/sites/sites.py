@@ -25,11 +25,20 @@ chromedriver_path = re.sub(r"automation_webhard/?.*", "automation_webhard/", chr
 chromedriver_path = chromedriver_path + "chromedriver"
 
 
+def init_chrome_driver(options=None):
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument(options)
+    driver = webdriver.Chrome(chromedriver_path, chrome_options=chrome_options)
+    return driver
+
+
 class Site:
     def __init__(self, site_name, options=None):
         self.site_name = site_name
+        self.options = options
+        self.browser = None
+
         self.account = self.load_account_info()
-        self.browser = self.init_chrome_driver(options=options)
 
     def load_account_info(self):
         with open(ACCOUNT_FILE_PATH, "r") as f:
@@ -41,15 +50,6 @@ class Site:
                 logger.error(f"{self.site_name}의 ID 혹은 PW의 갱신이 필요합니다.")
                 raise
         return {"id": account_id, "pw": account_pw}
-
-    def init_chrome_driver(self, options=None):
-        if options:
-            chrome_options = webdriver.ChromeOptions()
-            chrome_options.add_argument(options)
-            driver = webdriver.Chrome(chromedriver_path, chrome_options=chrome_options)
-        else:
-            driver = webdriver.Chrome(chromedriver_path)
-        return driver
 
     def wait_for_xpath_element_located(self, xpath, time=3):
         """
