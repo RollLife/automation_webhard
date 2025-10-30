@@ -142,3 +142,5 @@ class Ondisk:
 if __name__ == '__main__':
     ondisk = Ondisk()
     ondisk.run()
+    
+    # https://jakpentest.tistory.com/entry/Github-Action%EC%97%90%EC%84%9C-Selenium-%EC%8B%A4%ED%96%89%EC%8B%9C%ED%82%A4%EA%B8%B0
