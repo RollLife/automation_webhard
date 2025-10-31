@@ -37,25 +37,22 @@ class Ondisk:
         """
         chrome_options = webdriver.ChromeOptions()
         
-        # [참고 코드 반영] User-Agent 설정 제거. stealth가 처리하도록 함.
-        # chrome_options.add_argument(f'--user-agent="{self.user_agent}"')
-        
-        # --- GitHub Actions 또는 Linux 서버 환경을 위한 옵션 ---
-        # chrome_options.add_argument("--headless")
-        # chrome_options.add_argument("--no-sandbox") 
-        chrome_options.add_argument("--disable-dev-shm-usage") 
-        chrome_options.add_argument("--disable-gpu") 
-        # chrome_options.add_argument("--window-size=1920x1080")
-
-        # [참고 코드 반영] 봇 감지 우회를 위한 추가 옵션
         chrome_options.add_argument('incognito') # 시크릿 모드
         chrome_options.add_argument("disable-extensions") # 확장 프로그램 비활성화
         chrome_options.add_argument('--log-level=3') # 로그 레벨 낮춤
-        
-        # 봇 탐지를 피하기 위한 실험적인 옵션들
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option('useAutomationExtension', False)
-        
+
+
+# --- ⬇️ GitHub Actions를 위한 코드 ⬇️ ---
+        # 'CI' 환경 변수가 'true'이거나 존재할 경우 (GitHub Actions의 기본값)
+        if os.environ.get('CI'):
+            print("CI 환경 감지. Headless 모드로 실행합니다.")
+            chrome_options.add_argument("--headless")
+            chrome_options.add_argument("--no-sandbox") # CI 환경에서 필수
+            chrome_options.add_argument("--disable-dev-shm-usage")
+            chrome_options.add_argument("--disable-gpu")
+
         service = Service(executable_path=ChromeDriverManager().install()) 
         driver = webdriver.Chrome(service=service, options=chrome_options)
         
