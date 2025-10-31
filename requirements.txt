@@ -2,3 +2,4 @@ fake-useragent==0.1.11
 selenium
 python-dotenv==1.0.1
 webdriver-manager
+selenium_stealth
