@@ -1,0 +1,47 @@
+# 워크플로우의 이름
+name: OnDisk Daily Check
+
+# 언제 이 워크플로우를 실행할지 정의
+on:
+  # 1. 스케줄(cron)에 따라 매일 특정 시간에 실행
+  schedule:
+    # KST 기준 매일 오전 10시 30분에 실행 (UTC 01:30)
+    # cron 스케줄러 문법을 사용합니다.
+    - cron: '30 1 * * *' 
+  
+  # 2. GitHub Actions 탭에서 수동으로 실행할 수 있도록 버튼 추가
+  workflow_dispatch:
+
+# 실행할 작업(들) 정의
+jobs:
+  run-ondisk-check:
+    # 실행 환경 (가장 표준적인 우분투 리눅스)
+    runs-on: ubuntu-latest
+
+    # 실행할 단계(들)
+    steps:
+      # 1. 내 레포지토리의 코드를 runner(가상 서버)로 가져옴
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Python 3.10 버전 설치
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # 3. 필요한 파이썬 라이브러리 설치
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      # 4. 파이썬 스크립트 실행
+      - name: Run OnDisk Check Script
+        # GitHub Secrets에 저장한 값을 환경 변수(env)로 읽음.
+        # Python의 os.environ.get()이 이 값들을 읽음.
+        env:
+          ONDISK_ID: ${{ secrets.ONDISK_ID }}
+          ONDISK_PW: ${{ secrets.ONDISK_PW }}
+          CI: 'true' # 위에서 수정한 코드가 Headless를 켜도록 CI 변수 설정
+        run: python ondisk.py # (스크립트 파일명으로 변경하세요)
