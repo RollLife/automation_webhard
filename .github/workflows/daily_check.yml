@@ -17,6 +17,7 @@ jobs:
   run-ondisk-check:
     # 실행 환경 (가장 표준적인 우분투 리눅스)
     runs-on: ubuntu-latest
+    environment: ONDISK_ID
 
     # 실행할 단계(들)
     steps:
