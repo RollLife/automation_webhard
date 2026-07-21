@@ -1,0 +1,77 @@
+name: Keep Scheduled Workflows Active
+
+on:
+  schedule:
+    # Check every Monday at 12:17 KST. Using a non-zero minute reduces
+    # the chance of delays caused by GitHub Actions' hourly peak load.
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      force_refresh:
+        description: Create a keepalive commit even when the repository is not idle
+        required: false
+        type: boolean
+        default: false
+
+# The job only needs permission to update the heartbeat file.
+permissions:
+  contents: write
+
+concurrency:
+  group: repository-keepalive
+  cancel-in-progress: false
+
+jobs:
+  refresh-activity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the default branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 1
+
+      - name: Check repository inactivity
+        id: inactivity
+        env:
+          FORCE_REFRESH: ${{ github.event.inputs.force_refresh || 'false' }}
+          MAX_IDLE_DAYS: '45'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          last_commit_epoch="$(git log -1 --format=%ct)"
+          current_epoch="$(date -u +%s)"
+          idle_days="$(( (current_epoch - last_commit_epoch) / 86400 ))"
+
+          echo "Repository has been idle for ${idle_days} day(s)."
+
+          if [[ "${FORCE_REFRESH}" == "true" || "${idle_days}" -ge "${MAX_IDLE_DAYS}" ]]; then
+            echo "refresh=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "refresh=false" >> "${GITHUB_OUTPUT}"
+            echo "No keepalive commit is needed yet."
+          fi
+
+      - name: Refresh repository activity
+        if: steps.inactivity.outputs.refresh == 'true'
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          {
+            echo "# Managed by .github/workflows/keepalive.yml."
+            echo "last_refresh_utc=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          } > .github/keepalive
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/keepalive
+          git commit -m "chore: keep scheduled workflows active [skip ci]"
+
+          # Rebase if a normal commit landed while this short job was running.
+          git pull --rebase origin "${DEFAULT_BRANCH}"
+          git push origin "HEAD:${DEFAULT_BRANCH}"
